@@ -14,6 +14,11 @@ models/
 # Zemberek
 *.jar
 *.class
+*.java
 
 # OS
 .DS_Store
+
+spell_checker/oneriler.txt
+
+

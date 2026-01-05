@@ -1,10 +1,18 @@
+"""
+Turkish Spell Checker using a hybrid approach:
+- Rule-based candidate generation with Zemberek
+- Contextual selection with BERTurk (Masked Language Model)
+
+This module focuses on algorithmic correctness rather than production-level backend design.
+"""
+
 import os
 import subprocess
 from transformers import AutoTokenizer, AutoModelForMaskedLM
 import torch
 
 # Modeli yerel dizinden yükle
-model_dir = "./models/bert-turkish"
+model_dir = os.getenv("BERT_MODEL_DIR", "./models/bert-turkish")
 tokenizer = AutoTokenizer.from_pretrained(model_dir)
 model = AutoModelForMaskedLM.from_pretrained(model_dir)
 model.eval()

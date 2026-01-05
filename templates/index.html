@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Türkçe Yazım Denetimi - BERTurk + Zemberek</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .tech-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .tech-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .text-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #d0d0d0;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .result.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .result.error {
+            border-left: 4px solid #dc3545;
+            background: #fff5f5;
+        }
+
+        .result h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .text-comparison {
+            display: grid;
+            gap: 15px;
+        }
+
+        .text-box {
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .original-text {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+        }
+
+        .corrected-text {
+            background: #d4edda;
+            border: 1px solid #28a745;
+        }
+
+        .no-changes {
+            background: #e2e3e5;
+            border: 1px solid #6c757d;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        .limitations {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .limitations h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .limitations ul {
+            color: #856404;
+            margin-left: 20px;
+        }
+
+        .limitations li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tech-info {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇹🇷 Türkçe Yazım Denetimi</h1>
+            <p>Yapay zeka destekli yazım denetim sistemi</p>
+            <div class="tech-info">
+                <span class="tech-badge">BERTurk</span>
+                <span class="tech-badge">Zemberek</span>
+                <span class="tech-badge">Flask</span>
+            </div>
+        </div>
+
+        <form id="spellCheckForm">
+            <div class="form-group">
+                <label for="inputText">Kontrol edilecek metni giriniz:</label>
+                <textarea 
+                    id="inputText" 
+                    class="text-input" 
+                    placeholder="Buraya yazım denetimi yapılacak Türkçe metni yazınız..."
+                    required
+                ></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary" id="checkBtn">
+                    🔍 Yazım Denetimi Yap
+                </button>
+                <button type="button" class="btn btn-secondary" id="clearBtn">
+                    🗑️ Temizle
+                </button>
+            </div>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Yazım denetimi yapılıyor, lütfen bekleyiniz...</p>
+        </div>
+
+        <div class="result" id="result">
+            <h3 id="resultTitle">Sonuç</h3>
+            <div id="resultContent"></div>
+        </div>
+
+        <div class="limitations">
+            <h4>⚠️ Sistem Kısıtları</h4>
+            <ul>
+                <li>Bir cümlede en fazla bir hatalı kelime düzeltilebilir</li>
+                <li>Hatalı kelimelerde maksimum bir harf hatası düzeltilebilir</li>
+                <li>Sistem Türkçe metinler için optimize edilmiştir</li>
+                <li>Bağlamsal analiz için BERTurk modeli kullanılmaktadır</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('spellCheckForm');
+        const inputText = document.getElementById('inputText');
+        const checkBtn = document.getElementById('checkBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultContent = document.getElementById('resultContent');
+
+        // Form submit olayı
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await performSpellCheck();
+        });
+
+        // Temizle butonu
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            hideResult();
+            inputText.focus();
+        });
+
+        // Yazım denetimi fonksiyonu
+        async function performSpellCheck() {
+            const text = inputText.value.trim();
+            
+            if (!text) {
+                showError('Lütfen kontrol edilecek metni giriniz.');
+                return;
+            }
+
+            showLoading();
+            
+            try {
+                const response = await fetch('/check_spelling', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess(data);
+                } else {
+                    showError(data.error || 'Bilinmeyen bir hata oluştu.');
+                }
+            } catch (error) {
+                console.error('Hata:', error);
+                showError('Sunucu ile bağlantı kurulurken hata oluştu.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Loading göster
+        function showLoading() {
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            checkBtn.disabled = true;
+        }
+
+        // Loading gizle
+        function hideLoading() {
+            loading.style.display = 'none';
+            checkBtn.disabled = false;
+        }
+
+        // Sonucu gizle
+        function hideResult() {
+            result.style.display = 'none';
+        }
+
+        // Başarılı sonuç göster
+        function showSuccess(data) {
+            result.className = 'result success';
+            result.style.display = 'block';
+            
+            if (data.has_corrections) {
+                resultTitle.textContent = '✅ Düzeltmeler Yapıldı';
+                resultContent.innerHTML = `
+                    <div class="text-comparison">
+                        <div class="text-box original-text">
+                            <strong>Orijinal Metin:</strong><br>
+                            ${escapeHtml(data.original_text)}
+                        </div>
+                        <div class="text-box corrected-text">
+                            <strong>Düzeltilmiş Metin:</strong><br>
+                            ${escapeHtml(data.corrected_text)}
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultTitle.textContent = '✅ Metin Doğru';
+                resultContent.innerHTML = `
+                    <div class="text-box no-changes">
+                        Metninizde yazım hatası bulunamadı! 🎉
+                    </div>
+                `;
+            }
+        }
+
+        // Hata göster
+        function showError(message) {
+            result.className = 'result error';
+            result.style.display = 'block';
+            resultTitle.textContent = '❌ Hata';
+            resultContent.innerHTML = `
+                <div class="error-message">
+                    ${escapeHtml(message)}
+                </div>
+            `;
+        }
+
+        // HTML escape fonksiyonu
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Sayfa yüklendiğinde input'a odaklan
+        window.addEventListener('load', () => {
+            inputText.focus();
+        });
+
+        // Enter + Ctrl ile form submit
+        inputText.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                performSpellCheck();
+            }
+        });
+    </script>
+</body>
+</html>

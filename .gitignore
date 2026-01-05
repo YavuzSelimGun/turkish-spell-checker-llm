@@ -1,0 +1,19 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+
+# HuggingFace / model files
+models/
+*.bin
+*.pt
+*.safetensors
+
+# Zemberek
+*.jar
+*.class
+
+# OS
+.DS_Store

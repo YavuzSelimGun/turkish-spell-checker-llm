@@ -1,0 +1,17 @@
+# Ana bağımlılıklar
+Flask>=3.0.0
+transformers>=4.30.0
+torch>=2.0.0
+tokenizers>=0.13.0
+numpy>=1.21.0
+
+# Flask bağımlılıkları
+Werkzeug>=2.3.0
+Jinja2>=3.1.0
+click>=8.0.0
+itsdangerous>=2.1.0
+MarkupSafe>=2.1.0
+
+# İsteğe bağlı optimizasyonlar
+# accelerate>=0.20.0  # Transformer modellerini hızlandırır
+# safetensors>=0.3.0  # Güvenli model yükleme
